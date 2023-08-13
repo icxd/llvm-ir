@@ -4,9 +4,9 @@
 
 A small C library for generating LLVM IR.
 
-![GitHub](https://img.shields.io/github/license/icxc/llvm-ir?style=flat-square)
-![GitHub top language](https://img.shields.io/github/languages/top/icxc/llvm-ir?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/icxc/llvm-ir?style=flat-square)
+![GitHub](https://img.shields.io/github/license/icxd/llvm-ir?style=flat-square)
+![GitHub top language](https://img.shields.io/github/languages/top/icxd/llvm-ir?style=flat-square)
+![GitHub last commit](https://img.shields.io/github/last-commit/icxd/llvm-ir?style=flat-square)
 
 </div>
 
