@@ -1,8 +1,10 @@
+
 <div align=center>
+
+### **NOTE:** This project is still under heavy development and is not ready for production use.
 
 # LLVM IR
 
-**WARNING** This project is still under heavy development and is not ready for production use.
 
 A small C library for generating LLVM IR.
 
