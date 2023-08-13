@@ -77,8 +77,6 @@ typedef struct llvm_value_t {
         LLVM_VALUE_INT,
         LLVM_VALUE_FLOAT,
         LLVM_VALUE_DOUBLE,
-        LLVM_VALUE_GETELEMENTPTR,
-        LLVM_VALUE_GETELEMENTPTR_INBOUNDS,
         LLVM_VALUE_LOCAL,
     } type;
     union {
@@ -87,12 +85,6 @@ typedef struct llvm_value_t {
         int int_;
         float float_;
         double double_;
-        struct {
-            str name;
-            llvm_type_t type;
-            struct llvm_value_t *value;
-            struct llvm_value_t *index;
-        } getelementptr; // also used for getelementptr inbounds
         struct {
             uint idx;
         } local;
@@ -105,8 +97,6 @@ array_proto(llvm_value_t); array_impl(llvm_value_t);
 #define LLVM_VALUE_INT(n) ((llvm_value_t){LLVM_VALUE_INT, .int_=n})
 #define LLVM_VALUE_FLOAT(n) ((llvm_value_t){LLVM_VALUE_FLOAT, .float_=n})
 #define LLVM_VALUE_DOUBLE(n) ((llvm_value_t){LLVM_VALUE_DOUBLE, .double_=n})
-#define LLVM_VALUE_GETELEMENTPTR(n, t, v, i) ((llvm_value_t){LLVM_VALUE_GETELEMENTPTR, .getelementptr={STR(n), t, &(v), &(i)}})
-#define LLVM_VALUE_GETELEMENTPTR_INBOUNDS(n, t, v, i) ((llvm_value_t){LLVM_VALUE_GETELEMENTPTR_INBOUNDS, .getelementptr={STR(n), t, &(v), &(i)}})
 #define LLVM_VALUE_LOCAL(i) ((llvm_value_t){LLVM_VALUE_LOCAL, .local={i}})
 
 typedef struct llvm_function_arg_t {
@@ -119,6 +109,8 @@ typedef struct llvm_instruction_t {
     enum {
         LLVM_INSTR_CALL,
         LLVM_INSTR_RETURN,
+        LLVM_INSTR_GETELEMENTPTR,
+        LLVM_INSTR_GETELEMENTPTR_INBOUNDS,
     } type;
     union {
         struct {
@@ -130,12 +122,20 @@ typedef struct llvm_instruction_t {
             llvm_type_t return_type;
             llvm_value_t value;
         } return_;
+        struct {
+            str name;
+            llvm_type_t type;
+            struct llvm_value_t *value;
+            struct llvm_value_t *index;
+        } getelementptr; // also used for getelementptr inbounds
     };
 } llvm_instruction_t;
 array_proto(llvm_instruction_t); array_impl(llvm_instruction_t);
 
 #define LLVM_INSTR_CALL(r, n, a) ((llvm_instruction_t){LLVM_INSTR_CALL, .call={r, STR(n), a}})
 #define LLVM_INSTR_RETURN(r, v) ((llvm_instruction_t){LLVM_INSTR_RETURN, .return_={r, v}})
+#define LLVM_INSTR_GETELEMENTPTR(n, t, v, i) ((llvm_instruction_t){LLVM_INSTR_GETELEMENTPTR, .getelementptr={STR(n), t, &(v), &(i)}})
+#define LLVM_INSTR_GETELEMENTPTR_INBOUNDS(n, t, v, i) ((llvm_instruction_t){LLVM_INSTR_GETELEMENTPTR_INBOUNDS, .getelementptr={STR(n), t, &(v), &(i)}})
 
 // @<GlobalVarName> = [Linkage] [PreemptionSpecifier] [Visibility]
 //                    [DLLStorageClass] [ThreadLocal]

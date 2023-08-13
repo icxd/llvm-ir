@@ -184,6 +184,7 @@ str llvm_generate_type(llvm_generator_t *gen, llvm_type_t type) {
 }
 
 str llvm_generate_value(llvm_generator_t *gen, llvm_value_t value) {
+    UNUSED(gen);
     str out = STR("");
     switch (value.type) {
         case LLVM_VALUE_STRING: {
@@ -204,31 +205,6 @@ str llvm_generate_value(llvm_generator_t *gen, llvm_value_t value) {
         } break;
         case LLVM_VALUE_DOUBLE: {
             str_append_double(&out, value.double_);
-        } break;
-        case LLVM_VALUE_GETELEMENTPTR: {
-            str_append_cstr(&out, "getelementptr ");
-            str_append(&out, llvm_generate_type(gen, value.getelementptr.type));
-            str_append_cstr(&out, ", ");
-            str_append(&out, llvm_generate_type(gen, value.getelementptr.type));
-            str_append_cstr(&out, "* @");
-            str_append(&out, value.getelementptr.name);
-            str_append_cstr(&out, ", i32 ");
-            str_append(&out, llvm_generate_value(gen, *value.getelementptr.value));
-            str_append_cstr(&out, ", i32 ");
-            str_append(&out, llvm_generate_value(gen, *value.getelementptr.index));
-        } break;
-        case LLVM_VALUE_GETELEMENTPTR_INBOUNDS: {
-            str_append_cstr(&out, "getelementptr inbounds (");
-            str_append(&out, llvm_generate_type(gen, value.getelementptr.type));
-            str_append_cstr(&out, ", ");
-            str_append(&out, llvm_generate_type(gen, value.getelementptr.type));
-            str_append_cstr(&out, "* @");
-            str_append(&out, value.getelementptr.name);
-            str_append_cstr(&out, ", i32 ");
-            str_append(&out, llvm_generate_value(gen, *value.getelementptr.value));
-            str_append_cstr(&out, ", i32 ");
-            str_append(&out, llvm_generate_value(gen, *value.getelementptr.index));
-            str_append_cstr(&out, ")");
         } break;
         case LLVM_VALUE_LOCAL: {
             str_append_cstr(&out, "%");
@@ -279,6 +255,31 @@ str llvm_generate_instruction(llvm_generator_t *gen, llvm_instruction_t instruct
             str_append(&out, llvm_generate_type(gen, instruction.return_.return_type));
             str_append_cstr(&out, " ");
             str_append(&out, llvm_generate_value(gen, instruction.return_.value));
+        } break;
+        case LLVM_INSTR_GETELEMENTPTR: {
+            str_append_cstr(&out, "getelementptr ");
+            str_append(&out, llvm_generate_type(gen, instruction.getelementptr.type));
+            str_append_cstr(&out, ", ");
+            str_append(&out, llvm_generate_type(gen, instruction.getelementptr.type));
+            str_append_cstr(&out, "* @");
+            str_append(&out, instruction.getelementptr.name);
+            str_append_cstr(&out, ", i32 ");
+            str_append(&out, llvm_generate_value(gen, *instruction.getelementptr.value));
+            str_append_cstr(&out, ", i32 ");
+            str_append(&out, llvm_generate_value(gen, *instruction.getelementptr.index));
+        } break;
+        case LLVM_INSTR_GETELEMENTPTR_INBOUNDS: {
+            str_append_cstr(&out, "getelementptr inbounds (");
+            str_append(&out, llvm_generate_type(gen, instruction.getelementptr.type));
+            str_append_cstr(&out, ", ");
+            str_append(&out, llvm_generate_type(gen, instruction.getelementptr.type));
+            str_append_cstr(&out, "* @");
+            str_append(&out, instruction.getelementptr.name);
+            str_append_cstr(&out, ", i32 ");
+            str_append(&out, llvm_generate_value(gen, *instruction.getelementptr.value));
+            str_append_cstr(&out, ", i32 ");
+            str_append(&out, llvm_generate_value(gen, *instruction.getelementptr.index));
+            str_append_cstr(&out, ")");
         } break;
     }
     return out;

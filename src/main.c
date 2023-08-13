@@ -64,8 +64,8 @@ int main(void) {
 
     array_push(llvm_basic_block_instruction_t)(&main_instructions,
         LLVM_BASIC_BLOCK_INSTRUCTION_LOCAL(LLVM_LOCAL(0,
-            LLVM_LOCAL_VALUE(
-                LLVM_VALUE_GETELEMENTPTR("msg", LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_INT(0), LLVM_VALUE_INT(0))))));
+            LLVM_LOCAL_INSTRUCTION(
+                LLVM_INSTR_GETELEMENTPTR("msg", LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_INT(0), LLVM_VALUE_INT(0))))));
     array(llvm_function_arg_t) args = array_new(llvm_function_arg_t)();
     array_push(llvm_function_arg_t)(&args, (llvm_function_arg_t){
         LLVM_TYPE_STRING(),
