@@ -5,14 +5,18 @@
 
 typedef struct llvm_type_t {
     enum {
-        LLVM_TYPE_INT,
-        LLVM_TYPE_POINTER,
-        LLVM_TYPE_ARRAY,
-        LLVM_TYPE_VECTOR,
+        LLVM_TYPE_INT_,
+        LLVM_TYPE_FLOAT_,
+        LLVM_TYPE_POINTER_,
+        LLVM_TYPE_ARRAY_,
+        LLVM_TYPE_VECTOR_,
     } type;
     union {
         int int_;
-        struct llvm_type_t *pointer;
+        int float_;
+        struct {
+            struct llvm_type_t *inner;
+        } pointer;
         struct {
             struct llvm_type_t *inner;
             int size;
@@ -25,10 +29,11 @@ typedef struct llvm_type_t {
 } llvm_type_t;
 array_proto(llvm_type_t); array_impl(llvm_type_t);
 
-#define LLVM_TYPE_INT(s) ((llvm_type_t){LLVM_TYPE_INT, .int_=(s)})
-#define LLVM_TYPE_POINTER(inner) ((llvm_type_t){LLVM_TYPE_POINTER, .pointer=&(inner)})
-#define LLVM_TYPE_ARRAY(inner, s) ((llvm_type_t){LLVM_TYPE_ARRAY, .array={&(inner), (s)}})
-#define LLVM_TYPE_VECTOR(inner, s) ((llvm_type_t){LLVM_TYPE_VECTOR, .vector={&(inner), (s)}})
+#define LLVM_TYPE_INT(s) ((llvm_type_t){.type=LLVM_TYPE_INT_, .int_=(s)})
+#define LLVM_TYPE_FLOAT(s) ((llvm_type_t){.type=LLVM_TYPE_FLOAT_, .float_=(s)})
+#define LLVM_TYPE_POINTER(inner) ((llvm_type_t){.type=LLVM_TYPE_POINTER_, .pointer={&(inner)}})
+#define LLVM_TYPE_ARRAY(inner, s) ((llvm_type_t){.type=LLVM_TYPE_ARRAY_, .array={&(inner), (s)}})
+#define LLVM_TYPE_VECTOR(inner, s) ((llvm_type_t){.type=LLVM_TYPE_VECTOR_, .vector={&(inner), (s)}})
 // Custom wrappers for LLVM types
 #define LLVM_TYPE_CHAR() LLVM_TYPE_INT(8)
 #define LLVM_TYPE_STRING() LLVM_TYPE_POINTER(LLVM_TYPE_CHAR())

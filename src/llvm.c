@@ -26,7 +26,7 @@ str llvm_generate(llvm_generator_t *gen) {
         str_append_cstr(&out, "@");
         str_append(&out, global.name);
         str_append_cstr(&out, " = ");
-        for (int i = 0; i < global.attributes.size; i++) {
+        for (size_t i = 0; i < global.attributes.size; i++) {
             llvm_attribute_t attr = global.attributes.data[i];
             switch (attr) {
                 case LLVM_ATTR_INTERNAL: {
@@ -50,7 +50,7 @@ str llvm_generate(llvm_generator_t *gen) {
         str_append_cstr(&out, " @");
         str_append(&out, function.name);
         str_append_cstr(&out, "(");
-        for (int i = 0; i < function.args.size; i++) {
+        for (size_t i = 0; i < function.args.size; i++) {
             llvm_type_t arg = function.args.data[i];
             str_append(&out, llvm_generate_type(gen, arg));
             if (i < function.args.size - 1)
@@ -65,11 +65,11 @@ str llvm_generate(llvm_generator_t *gen) {
             str_append_cstr(&out, " {\n");
             if (function.body == NULL)
                 fatal("function body is null.");
-            for (int i = 0; i < function.body->basic_blocks.size; i++) {
+            for (size_t i = 0; i < function.body->basic_blocks.size; i++) {
                 llvm_basic_block_t basic_block = function.body->basic_blocks.data[i];
                 str_append(&out, basic_block.name);
                 str_append_cstr(&out, ":\n");
-                for (int j = 0; j < basic_block.instructions.size; j++) {
+                for (size_t j = 0; j < basic_block.instructions.size; j++) {
                     llvm_basic_block_instruction_t instruction = basic_block.instructions.data[j];
                     str_append_cstr(&out, "  ");
                     if (instruction.local != NULL)
@@ -101,22 +101,30 @@ str llvm_generate_local(llvm_generator_t *gen, llvm_local_t local) {
 str llvm_generate_type(llvm_generator_t *gen, llvm_type_t type) {
     str out = STR("");
     switch (type.type) {
-        case LLVM_TYPE_INT: {
+        case LLVM_TYPE_INT_: {
             str_append_cstr(&out, "i");
             str_append_int(&out, type.int_);
         } break;
-        case LLVM_TYPE_POINTER: {
-            str_append(&out, llvm_generate_type(gen, *type.pointer));
+        case LLVM_TYPE_FLOAT_: {
+            if (type.float_ == 32)
+                str_append_cstr(&out, "float");
+            else if (type.float_ == 64)
+                str_append_cstr(&out, "double");
+            else
+                fatal("invalid float size.");
+        } break;
+        case LLVM_TYPE_POINTER_: {
+            str_append(&out, llvm_generate_type(gen, *type.pointer.inner));
             str_append_cstr(&out, "*");
         } break;
-        case LLVM_TYPE_ARRAY: {
+        case LLVM_TYPE_ARRAY_: {
             str_append_cstr(&out, "[");
             str_append_int(&out, type.array.size);
             str_append_cstr(&out, " x ");
             str_append(&out, llvm_generate_type(gen, *type.array.inner));
             str_append_cstr(&out, "]");
         } break;
-        case LLVM_TYPE_VECTOR: {
+        case LLVM_TYPE_VECTOR_: {
             str_append_cstr(&out, "<");
             str_append_int(&out, type.vector.size);
             str_append_cstr(&out, " x ");
@@ -184,14 +192,14 @@ str llvm_generate_instruction(llvm_generator_t *gen, llvm_instruction_t instruct
             str_append(&out, llvm_generate_type(gen, instruction.call.return_type));
             str_append_cstr(&out, " (");
             bool is_vararg = false;
-            for (int i = 0; i < gen->functions.size; i++) {
+            for (size_t i = 0; i < gen->functions.size; i++) {
                 llvm_function_t function = gen->functions.data[i];
                 if (str_eq(function.name, instruction.call.function_name)) {
                     is_vararg = function.is_vararg;
                     break;
                 }
             }
-            for (int i = 0; i < instruction.call.args.size; i++) {
+            for (size_t i = 0; i < instruction.call.args.size; i++) {
                 llvm_function_arg_t arg = instruction.call.args.data[i];
                 str_append(&out, llvm_generate_type(gen, arg.arg_type));
                 if (i < instruction.call.args.size - 1)
@@ -202,7 +210,7 @@ str llvm_generate_instruction(llvm_generator_t *gen, llvm_instruction_t instruct
             str_append_cstr(&out, ") @");
             str_append(&out, instruction.call.function_name);
             str_append_cstr(&out, "(");
-            for (int i = 0; i < instruction.call.args.size; i++) {
+            for (size_t i = 0; i < instruction.call.args.size; i++) {
                 llvm_function_arg_t arg = instruction.call.args.data[i];
                 str_append(&out, llvm_generate_type(gen, arg.arg_type));
                 str_append_cstr(&out, " ");
