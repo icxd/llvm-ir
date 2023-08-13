@@ -112,6 +112,13 @@ str llvm_generate_type(llvm_generator_t *gen, llvm_type_t type) {
             str_append(&out, llvm_generate_type(gen, *type.array.inner));
             str_append_cstr(&out, "]");
         } break;
+        case LLVM_TYPE_VECTOR: {
+            str_append_cstr(&out, "<");
+            str_append_int(&out, type.vector.size);
+            str_append_cstr(&out, " x ");
+            str_append(&out, llvm_generate_type(gen, *type.vector.inner));
+            str_append_cstr(&out, ">");
+        } break;
     }
     return out;
 }
