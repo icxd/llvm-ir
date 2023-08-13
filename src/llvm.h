@@ -109,9 +109,17 @@ array_proto(llvm_global_t); array_impl(llvm_global_t);
 
 #define LLVM_GLOBAL(n, a, t, v) ((llvm_global_t){STR(n), a, t, v})
 
+typedef struct llvm_local_value_t {
+    llvm_value_t *value;
+    llvm_instruction_t *instruction;
+} llvm_local_value_t;
+
+#define LLVM_LOCAL_VALUE(v) ((llvm_local_value_t){&(v), NULL})
+#define LLVM_LOCAL_INSTRUCTION(i) ((llvm_local_value_t){NULL, &(i)})
+
 typedef struct llvm_local_t {
     uint idx;
-    llvm_value_t value; // TODO: convert to union type with llvm_value_t and llvm_instruction_t
+    llvm_local_value_t value;
 } llvm_local_t;
 array_proto(llvm_local_t); array_impl(llvm_local_t);
 

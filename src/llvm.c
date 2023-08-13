@@ -90,7 +90,11 @@ str llvm_generate_local(llvm_generator_t *gen, llvm_local_t local) {
     str_append_cstr(&out, "%");
     str_append_int(&out, local.idx);
     str_append_cstr(&out, " = ");
-    str_append(&out, llvm_generate_value(gen, local.value));
+    if (local.value.value != NULL) {
+        str_append(&out, llvm_generate_value(gen, *local.value.value));
+    } else if (local.value.instruction != NULL) {
+        str_append(&out, llvm_generate_instruction(gen, *local.value.instruction));
+    }
     return out;
 }
 
