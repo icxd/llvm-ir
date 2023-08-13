@@ -5,3 +5,4 @@ src/*.o
 main
 *.ilk
 *.pdb
+.vscode/settings.json
