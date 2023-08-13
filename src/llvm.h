@@ -28,6 +28,12 @@ typedef enum llvm_dll_storage_class_t {
     LLVM_DLL_STORAGE_CLASS_DLLEXPORT,
 } llvm_dll_storage_class_t;
 
+typedef enum llvm_visibility_t {
+    LLVM_VISIBILITY_DEFAULT,
+    LLVM_VISIBILITY_HIDDEN,
+    LLVM_VISIBILITY_PROTECTED,
+} llvm_visibility_t;
+
 typedef struct llvm_type_t {
     enum {
         LLVM_TYPE_INT_,
@@ -131,11 +137,22 @@ array_proto(llvm_instruction_t); array_impl(llvm_instruction_t);
 #define LLVM_INSTR_CALL(r, n, a) ((llvm_instruction_t){LLVM_INSTR_CALL, .call={r, STR(n), a}})
 #define LLVM_INSTR_RETURN(r, v) ((llvm_instruction_t){LLVM_INSTR_RETURN, .return_={r, v}})
 
+// @<GlobalVarName> = [Linkage] [PreemptionSpecifier] [Visibility]
+//                    [DLLStorageClass] [ThreadLocal]
+//                    [(unnamed_addr|local_unnamed_addr)] [AddrSpace]
+//                    [ExternallyInitialized]
+//                    <global | constant> <Type> [<InitializerConstant>]
+//                    [, section "name"] [, partition "name"]
+//                    [, comdat [($name)]] [, align <Alignment>]
+//                    [, no_sanitize_address] [, no_sanitize_hwaddress]
+//                    [, sanitize_address_dyninit] [, sanitize_memtag]
+//                    (, !name !N)*
 typedef struct llvm_global_t {
     str name;
-    int address_space;
-    llvm_dll_storage_class_t dll_storage_class;
     llvm_linkage_type_t linkage;
+    llvm_visibility_t visibility;
+    llvm_dll_storage_class_t dll_storage_class;
+    int address_space;
     bool is_constant;
     llvm_type_t type;
     llvm_value_t value;
@@ -183,22 +200,28 @@ typedef struct llvm_function_body_t {
     array(llvm_basic_block_t) basic_blocks;
 } llvm_function_body_t;
 
+// define [linkage] [PreemptionSpecifier] [visibility] [DLLStorageClass]
+//        [cconv] [ret attrs]
+//        <ResultType> @<FunctionName> ([argument list])
+//        [(unnamed_addr|local_unnamed_addr)] [AddrSpace] [fn Attrs]
+//        [section "name"] [partition "name"] [comdat [($name)]] [align N]
+//        [gc] [prefix Constant] [prologue Constant] [personality Constant]
+//        (!name !N)* { ... }
 typedef struct llvm_function_t {
+    bool is_native;
     str name;
     llvm_linkage_type_t linkage;
+    llvm_visibility_t visibility;
+    llvm_dll_storage_class_t dll_storage_class;
     llvm_call_convention_t call_convention;
     llvm_type_t return_type;
     array(llvm_type_t) args;
-    llvm_function_body_t *body;
-    bool is_native;
     bool is_vararg;
+    int address_space;
+    int alignment;
+    llvm_function_body_t *body;
 } llvm_function_t;
 array_proto(llvm_function_t); array_impl(llvm_function_t);
-
-#define LLVM_FUNCTION(n, r, a, b, v) ((llvm_function_t){STR(n), LLVM_LINKAGE_INTERNAL, LLVM_CALL_CONVENTION_C, r, a, &b, false, v})
-#define LLVM_FUNCTION_LINKAGE(n, l, r, a, b, v) ((llvm_function_t){STR(n), l, LLVM_CALL_CONVENTION_C, r, a, &b, false, v})
-#define LLVM_NATIVE_FUNCTION(n, r, a, v) ((llvm_function_t){STR(n), LLVM_LINKAGE_INTERNAL, LLVM_CALL_CONVENTION_C, r, a, NULL, true, v})
-#define LLVM_NATIVE_FUNCTION_LINKAGE(n, l, r, a, v) ((llvm_function_t){STR(n), l, LLVM_CALL_CONVENTION_C, r, a, NULL, true, v})
 
 typedef struct llvm_generator_t {
     array(llvm_global_t) globals;
