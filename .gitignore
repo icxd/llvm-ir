@@ -1,0 +1,5 @@
+out.ll
+out.exe
+out.s
+src/*.o
+main
