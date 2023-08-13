@@ -3,3 +3,5 @@ out.exe
 out.s
 src/*.o
 main
+*.ilk
+*.pdb
