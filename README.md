@@ -2,8 +2,7 @@
 
 # LLVM IR
 
-**NOTE**
-**This project is still under heavy development and is not ready for production use.**
+**WARNING** This project is still under heavy development and is not ready for production use.
 
 A small C library for generating LLVM IR.
 
