@@ -16,5 +16,8 @@ all: $(OBJS)
 clean:
 	rm -f $(OBJS) bin/$(TARGET)
 
+build_dll:
+	$(CC) $(CFLAGS) -shared -o bin/libllvm.dll src/llvm.c -I. $(LIBS)
+
 .PHONY: all clean
 .DEFAULT_GOAL := all
