@@ -5,10 +5,23 @@ int main(void) {
     llvm_generator_t gen;
     llvm_init(&gen);
     
-    array(llvm_attribute_t) attrs = array_new(llvm_attribute_t)();
-    array_push(llvm_attribute_t)(&attrs, LLVM_ATTR_INTERNAL);
-    array_push(llvm_attribute_t)(&attrs, LLVM_ATTR_CONSTANT);
-    llvm_add_global(&gen, LLVM_GLOBAL("msg", attrs, LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_CSTRING("Hello world!")));
+    llvm_add_global(&gen, (llvm_global_t){
+        .name = STR("msg"),
+        .linkage = LLVM_LINKAGE_INTERNAL,
+        .is_constant = true,
+        .type = LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13),
+        .value = LLVM_VALUE_CSTRING("Hello world!"),
+    });
+
+    llvm_add_global(&gen, (llvm_global_t){
+        .name = STR("G"),
+        .address_space = 5,
+        // .dll_storage_class = LLVM_DLL_STORAGE_CLASS_DLLIMPORT,
+        .is_constant = true,
+        .type = LLVM_TYPE_FLOAT(),
+        .value = LLVM_VALUE_FLOAT(1.0f),
+        .alignment = 4,
+    });
     
     array(llvm_type_t) print_args = array_new(llvm_type_t)();
     array_push(llvm_type_t)(&print_args, LLVM_TYPE_STRING());
@@ -40,7 +53,6 @@ int main(void) {
     str output = llvm_generate(&gen);
     file_write(STR("out.ll"), output);
     
-    array_free(llvm_attribute_t)(&attrs);
     array_free(llvm_type_t)(&main_args);
     array_free(llvm_function_arg_t)(&args);
     llvm_free(&gen);
