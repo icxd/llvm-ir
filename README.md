@@ -8,10 +8,10 @@
 
 A small C library for generating LLVM IR.
 
-![GitHub](https://img.shields.io/github/license/icxd/llvm-ir?style=flat-square)
-![GitHub last commit](https://img.shields.io/github/last-commit/icxd/llvm-ir?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/icxd/llvm-ir?style=flat-square)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/icxd/llvm-ir?style=flat-square)
+![GitHub](https://img.shields.io/github/license/icxd/llvm-ir?style=for-the-badge)
+![GitHub stars](https://img.shields.io/github/stars/icxd/llvm-ir?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/icxd/llvm-ir?style=for-the-badge)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/icxd/llvm-ir?style=for-the-badge)
 
 </div>
 
