@@ -46,6 +46,12 @@ void str_append_int(str *s1, int i) {
     str_append_cstr(s1, buf);
 }
 
+void str_append_float(str *s1, float f) {
+    char buf[32];
+    sprintf_s(buf, 32, "%f", f);
+    str_append_cstr(s1, buf);
+}
+
 void str_append_double(str *s1, double d) {
     char buf[32];
     sprintf_s(buf, 32, "%f", d);
