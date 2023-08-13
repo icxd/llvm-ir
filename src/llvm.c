@@ -151,6 +151,9 @@ str llvm_generate_value(llvm_generator_t *gen, llvm_value_t value) {
         case LLVM_VALUE_INT: {
             str_append_int(&out, value.int_);
         } break;
+        case LLVM_VALUE_FLOAT: {
+            str_append_double(&out, value.float_);
+        } break;
         case LLVM_VALUE_GETELEMENTPTR: {
             str_append_cstr(&out, "getelementptr ");
             str_append(&out, llvm_generate_type(gen, value.getelementptr.type));

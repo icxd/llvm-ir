@@ -43,6 +43,7 @@ typedef struct llvm_value_t {
         LLVM_VALUE_STRING,
         LLVM_VALUE_CSTRING,
         LLVM_VALUE_INT,
+        LLVM_VALUE_FLOAT,
         LLVM_VALUE_GETELEMENTPTR,
         LLVM_VALUE_GETELEMENTPTR_INBOUNDS,
         LLVM_VALUE_LOCAL,
@@ -51,6 +52,7 @@ typedef struct llvm_value_t {
         str string_;
         str cstring_;
         int int_;
+        double float_;
         struct {
             str name;
             llvm_type_t type;
@@ -67,6 +69,7 @@ array_proto(llvm_value_t); array_impl(llvm_value_t);
 #define LLVM_VALUE_STRING(s) ((llvm_value_t){LLVM_VALUE_STRING, .string_=STR(s)})
 #define LLVM_VALUE_CSTRING(s) ((llvm_value_t){LLVM_VALUE_CSTRING, .cstring_=STR(s)})
 #define LLVM_VALUE_INT(n) ((llvm_value_t){LLVM_VALUE_INT, .int_=n})
+#define LLVM_VALUE_FLOAT(n) ((llvm_value_t){LLVM_VALUE_FLOAT, .float_=n})
 #define LLVM_VALUE_GETELEMENTPTR(n, t, v, i) ((llvm_value_t){LLVM_VALUE_GETELEMENTPTR, .getelementptr={STR(n), t, &(v), &(i)}})
 #define LLVM_VALUE_GETELEMENTPTR_INBOUNDS(n, t, v, i) ((llvm_value_t){LLVM_VALUE_GETELEMENTPTR_INBOUNDS, .getelementptr={STR(n), t, &(v), &(i)}})
 #define LLVM_VALUE_LOCAL(i) ((llvm_value_t){LLVM_VALUE_LOCAL, .local={i}})
