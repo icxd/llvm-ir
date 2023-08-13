@@ -26,20 +26,28 @@ str llvm_generate(llvm_generator_t *gen) {
         str_append_cstr(&out, "@");
         str_append(&out, global.name);
         str_append_cstr(&out, " = ");
-        for (size_t i = 0; i < global.attributes.size; i++) {
-            llvm_attribute_t attr = global.attributes.data[i];
-            switch (attr) {
-                case LLVM_ATTR_INTERNAL: {
-                    str_append_cstr(&out, "internal ");
-                } break;
-                case LLVM_ATTR_CONSTANT: {
-                    str_append_cstr(&out, "constant ");
-                } break;
+        str_append(&out, llvm_generate_linkage_type(global.linkage));
+        if (global.dll_storage_class) {
+            switch (global.dll_storage_class) {
+                case LLVM_DLL_STORAGE_CLASS_DLLIMPORT: str_append_cstr(&out, "dllimport "); break;
+                case LLVM_DLL_STORAGE_CLASS_DLLEXPORT: str_append_cstr(&out, "dllexport "); break;
+                case LLVM_DLL_STORAGE_CLASS_DEFAULT: break;
             }
         }
+        if (global.address_space) {
+            str_append_cstr(&out, "addrspace(");
+            str_append_int(&out, global.address_space);
+            str_append_cstr(&out, ") ");
+        }
+        if (global.is_constant) str_append_cstr(&out, "constant ");
+        else str_append_cstr(&out, "global ");
         str_append(&out, llvm_generate_type(gen, global.type));
         str_append_cstr(&out, " ");
         str_append(&out, llvm_generate_value(gen, global.value));
+        if (global.alignment) {
+            str_append_cstr(&out, ", align ");
+            str_append_int(&out, global.alignment);
+        }
         str_append_cstr(&out, "\n");
     });
     array_foreach(llvm_function_t, gen->functions, {
@@ -152,7 +160,10 @@ str llvm_generate_value(llvm_generator_t *gen, llvm_value_t value) {
             str_append_int(&out, value.int_);
         } break;
         case LLVM_VALUE_FLOAT: {
-            str_append_double(&out, value.float_);
+            str_append_float(&out, value.float_);
+        } break;
+        case LLVM_VALUE_DOUBLE: {
+            str_append_double(&out, value.double_);
         } break;
         case LLVM_VALUE_GETELEMENTPTR: {
             str_append_cstr(&out, "getelementptr ");
@@ -231,4 +242,21 @@ str llvm_generate_instruction(llvm_generator_t *gen, llvm_instruction_t instruct
         } break;
     }
     return out;
+}
+
+str llvm_generate_linkage_type(llvm_linkage_type_t linkage) {
+    if (!linkage)
+        return STR("");
+    switch (linkage) {
+        case LLVM_LINKAGE_EXTERNAL: return STR("external ");
+        case LLVM_LINKAGE_INTERNAL: return STR("internal ");
+        case LLVM_LINKAGE_PRIVATE: return STR("private ");
+        case LLVM_LINKAGE_LINKONCE: return STR("linkonce ");
+        case LLVM_LINKAGE_WEAK: return STR("weak ");
+        case LLVM_LINKAGE_COMMON: return STR("common ");
+        case LLVM_LINKAGE_APPENDING: return STR("appending ");
+        case LLVM_LINKAGE_EXTERN_WEAK: return STR("extern_weak ");
+        case LLVM_LINKAGE_AVAILABLE_EXTERNALLY: return STR("available_externally ");
+    }
+    return STR("");
 }
