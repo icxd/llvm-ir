@@ -182,6 +182,7 @@ bool str_eq(str s1, str s2);
 void str_append(str *s1, str s2);
 void str_append_cstr(str *s1, char *s2);
 void str_append_int(str *s1, int i);
+void str_append_double(str *s1, double d);
 void str_append_char(str *s1, char c);
 str str_substring(str s, size_t start, size_t end);
 void str_free(str *s);
