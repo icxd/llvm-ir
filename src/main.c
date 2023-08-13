@@ -17,15 +17,46 @@ int main(void) {
         .name = STR("G"),
         .address_space = 5,
         // .dll_storage_class = LLVM_DLL_STORAGE_CLASS_DLLIMPORT,
+        .visibility = LLVM_VISIBILITY_HIDDEN,
         .is_constant = true,
         .type = LLVM_TYPE_FLOAT(),
         .value = LLVM_VALUE_FLOAT(1.0f),
         .alignment = 4,
     });
+
+    array(llvm_type_t) f_args = array_new(llvm_type_t)();
+    array_push(llvm_type_t)(&f_args, LLVM_TYPE_INT(32));
+    array_push(llvm_type_t)(&f_args, LLVM_TYPE_INT(32));
+    array_push(llvm_type_t)(&f_args, LLVM_TYPE_INT(32));
+
+    array(llvm_basic_block_instruction_t) f_instructions = array_new(llvm_basic_block_instruction_t)();
+    array_push(llvm_basic_block_instruction_t)(&f_instructions,
+        LLVM_BASIC_BLOCK_INSTRUCTION_INSTRUCTION(LLVM_INSTR_RETURN(LLVM_TYPE_INT(32), LLVM_VALUE_INT(0))));
+    array(llvm_basic_block_t) f_basic_blocks = array_new(llvm_basic_block_t)();
+    array_push(llvm_basic_block_t)(&f_basic_blocks, LLVM_BASIC_BLOCK("entry", f_instructions));
+    llvm_function_body_t f_body = {f_basic_blocks};
+    llvm_add_function(&gen, (llvm_function_t){
+        .name = STR("f"),
+        .linkage = LLVM_LINKAGE_PRIVATE,
+        .visibility = LLVM_VISIBILITY_PROTECTED,
+        .call_convention = LLVM_CALL_CONVENTION_COLD,
+        // .dll_storage_class = LLVM_DLL_STORAGE_CLASS_DLLEXPORT,
+        .return_type = LLVM_TYPE_INT(32),
+        .args = f_args,
+        .body = &f_body,
+        .address_space = 5,
+        .alignment = 4,
+    });
     
     array(llvm_type_t) print_args = array_new(llvm_type_t)();
     array_push(llvm_type_t)(&print_args, LLVM_TYPE_STRING());
-    llvm_add_function(&gen, LLVM_NATIVE_FUNCTION("printf", LLVM_TYPE_INT(32), print_args, true));
+    llvm_add_function(&gen, (llvm_function_t){
+        .name = STR("printf"),
+        .return_type = LLVM_TYPE_INT(32),
+        .args = print_args,
+        .is_vararg = true,
+        .is_native = true,
+    });
     
     array(llvm_type_t) main_args = array_new(llvm_type_t)();
     array(llvm_basic_block_t) main_basic_blocks = array_new(llvm_basic_block_t)();
@@ -48,7 +79,12 @@ int main(void) {
     array_push(llvm_basic_block_t)(&main_basic_blocks, LLVM_BASIC_BLOCK("entry", main_instructions));
     
     llvm_function_body_t main_body = {main_basic_blocks};
-    llvm_add_function(&gen, LLVM_FUNCTION("main", LLVM_TYPE_INT(32), main_args, main_body, false));
+    llvm_add_function(&gen, (llvm_function_t){
+        .name = STR("main"),
+        .return_type = LLVM_TYPE_INT(32),
+        .args = main_args,
+        .body = &main_body,
+    });
     
     str output = llvm_generate(&gen);
     file_write(STR("out.ll"), output);
