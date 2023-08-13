@@ -4,12 +4,18 @@
 int main(void) {
     llvm_generator_t gen;
     llvm_init(&gen);
-    
+
+    array(llvm_type_ptr_t) t1_members = array_new(llvm_type_ptr_t)();
+    array_push(llvm_type_ptr_t)(&t1_members, &LLVM_TYPE_INT(32));
+    array_push(llvm_type_ptr_t)(&t1_members, &LLVM_TYPE_INT(32));
+    llvm_add_type_declaration(&gen, LLVM_TYPE_DECLARATION("T1", LLVM_TYPE_STRUCTURE(t1_members, false)));
+    llvm_add_type_declaration(&gen, LLVM_TYPE_DECLARATION("T2", LLVM_TYPE_STRUCTURE(t1_members, true)));
+
     llvm_add_global(&gen, (llvm_global_t){
         .name = STR("msg"),
-        .linkage = LLVM_LINKAGE_INTERNAL,
+        .linkage = LLVM_LINKAGE_INTERNAL, 
         .is_constant = true,
-        .type = LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13),
+        .type = &LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13),
         .value = LLVM_VALUE_CSTRING("Hello world!"),
     });
 
@@ -19,7 +25,7 @@ int main(void) {
         // .dll_storage_class = LLVM_DLL_STORAGE_CLASS_DLLIMPORT,
         .visibility = LLVM_VISIBILITY_HIDDEN,
         .is_constant = true,
-        .type = LLVM_TYPE_FLOAT(),
+        .type = &LLVM_TYPE_FLOAT(),
         .value = LLVM_VALUE_FLOAT(1.0f),
         .alignment = 4,
     });

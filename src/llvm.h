@@ -34,6 +34,9 @@ typedef enum llvm_visibility_t {
     LLVM_VISIBILITY_PROTECTED,
 } llvm_visibility_t;
 
+typedef struct llvm_type_t *llvm_type_ptr_t;
+array_proto(llvm_type_ptr_t); array_impl(llvm_type_ptr_t);
+
 typedef struct llvm_type_t {
     enum {
         LLVM_TYPE_INT_,
@@ -41,6 +44,7 @@ typedef struct llvm_type_t {
         LLVM_TYPE_POINTER_,
         LLVM_TYPE_ARRAY_,
         LLVM_TYPE_VECTOR_,
+        LLVM_TYPE_STRUCTURE_
     } type;
     union {
         int int_;
@@ -56,6 +60,10 @@ typedef struct llvm_type_t {
             struct llvm_type_t *inner;
             int size;
         } vector;
+        struct {
+            array(llvm_type_ptr_t) members;
+            bool is_packed;
+        } structure;
     };
 } llvm_type_t;
 array_proto(llvm_type_t); array_impl(llvm_type_t);
@@ -66,18 +74,20 @@ array_proto(llvm_type_t); array_impl(llvm_type_t);
 #define LLVM_TYPE_POINTER(inner) ((llvm_type_t){.type=LLVM_TYPE_POINTER_, .pointer={&(inner)}})
 #define LLVM_TYPE_ARRAY(inner, s) ((llvm_type_t){.type=LLVM_TYPE_ARRAY_, .array={&(inner), (s)}})
 #define LLVM_TYPE_VECTOR(inner, s) ((llvm_type_t){.type=LLVM_TYPE_VECTOR_, .vector={&(inner), (s)}})
+#define LLVM_TYPE_STRUCTURE(members, p) ((llvm_type_t){.type=LLVM_TYPE_STRUCTURE_, .structure={members, p}})
 // Custom wrappers for LLVM types
 #define LLVM_TYPE_CHAR() LLVM_TYPE_INT(8)
 #define LLVM_TYPE_STRING() LLVM_TYPE_POINTER(LLVM_TYPE_CHAR())
 
 typedef struct llvm_value_t {
     enum {
-        LLVM_VALUE_STRING,
-        LLVM_VALUE_CSTRING,
-        LLVM_VALUE_INT,
-        LLVM_VALUE_FLOAT,
-        LLVM_VALUE_DOUBLE,
-        LLVM_VALUE_LOCAL,
+        LLVM_VALUE_STRING_,
+        LLVM_VALUE_CSTRING_,
+        LLVM_VALUE_INT_,
+        LLVM_VALUE_FLOAT_,
+        LLVM_VALUE_DOUBLE_,
+        LLVM_VALUE_LOCAL_,
+        LLVM_VALUE_TYPE_,
     } type;
     union {
         str string_;
@@ -88,16 +98,18 @@ typedef struct llvm_value_t {
         struct {
             uint idx;
         } local;
+        llvm_type_t type_;
     };
 } llvm_value_t;
 array_proto(llvm_value_t); array_impl(llvm_value_t);
 
-#define LLVM_VALUE_STRING(s) ((llvm_value_t){LLVM_VALUE_STRING, .string_=STR(s)})
-#define LLVM_VALUE_CSTRING(s) ((llvm_value_t){LLVM_VALUE_CSTRING, .cstring_=STR(s)})
-#define LLVM_VALUE_INT(n) ((llvm_value_t){LLVM_VALUE_INT, .int_=n})
-#define LLVM_VALUE_FLOAT(n) ((llvm_value_t){LLVM_VALUE_FLOAT, .float_=n})
-#define LLVM_VALUE_DOUBLE(n) ((llvm_value_t){LLVM_VALUE_DOUBLE, .double_=n})
-#define LLVM_VALUE_LOCAL(i) ((llvm_value_t){LLVM_VALUE_LOCAL, .local={i}})
+#define LLVM_VALUE_STRING(s) ((llvm_value_t){LLVM_VALUE_STRING_, .string_=STR(s)})
+#define LLVM_VALUE_CSTRING(s) ((llvm_value_t){LLVM_VALUE_CSTRING_, .cstring_=STR(s)})
+#define LLVM_VALUE_INT(n) ((llvm_value_t){LLVM_VALUE_INT_, .int_=n})
+#define LLVM_VALUE_FLOAT(n) ((llvm_value_t){LLVM_VALUE_FLOAT_, .float_=n})
+#define LLVM_VALUE_DOUBLE(n) ((llvm_value_t){LLVM_VALUE_DOUBLE_, .double_=n})
+#define LLVM_VALUE_LOCAL(i) ((llvm_value_t){LLVM_VALUE_LOCAL_, .local={i}})
+#define LLVM_VALUE_TYPE(t) ((llvm_value_t){LLVM_VALUE_TYPE_, .type_=t})
 
 typedef struct llvm_function_arg_t {
     llvm_type_t arg_type;
@@ -154,14 +166,15 @@ typedef struct llvm_global_t {
     llvm_dll_storage_class_t dll_storage_class;
     int address_space;
     bool is_constant;
-    llvm_type_t type;
+    bool is_global;
+    llvm_type_t *type;
     llvm_value_t value;
     int alignment;
 } llvm_global_t;
 array_proto(llvm_global_t); array_impl(llvm_global_t);
 
-#define LLVM_GLOBAL(n, c, t, v) ((llvm_global_t){STR(n), LLVM_LINKAGE_INTERNAL, c, t, v})
-#define LLVM_GLOBAL_LINKAGE(n, l, c, t, v) ((llvm_global_t){STR(n), l, c, t, v})
+#define LLVM_GLOBAL(n, c, t, v) ((llvm_global_t){STR(n), LLVM_LINKAGE_INTERNAL, c, &(t), v})
+#define LLVM_GLOBAL_LINKAGE(n, l, c, t, v) ((llvm_global_t){STR(n), l, c, &(t), v})
 
 typedef struct llvm_local_value_t {
     llvm_value_t *value;
@@ -223,13 +236,23 @@ typedef struct llvm_function_t {
 } llvm_function_t;
 array_proto(llvm_function_t); array_impl(llvm_function_t);
 
+typedef struct llvm_type_declaration_t {
+    str name;
+    llvm_type_t type;
+} llvm_type_declaration_t;
+array_proto(llvm_type_declaration_t); array_impl(llvm_type_declaration_t);
+
+#define LLVM_TYPE_DECLARATION(n, t) ((llvm_type_declaration_t){STR(n), t})
+
 typedef struct llvm_generator_t {
+    array(llvm_type_declaration_t) type_declarations;
     array(llvm_global_t) globals;
     array(llvm_function_t) functions;
 } llvm_generator_t;
 
 void llvm_init(llvm_generator_t *gen);
 void llvm_free(llvm_generator_t *gen);
+void llvm_add_type_declaration(llvm_generator_t *gen, llvm_type_declaration_t type_declaration);
 void llvm_add_global(llvm_generator_t *gen, llvm_global_t global);
 void llvm_add_function(llvm_generator_t *gen, llvm_function_t function);
 

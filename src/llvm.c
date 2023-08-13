@@ -2,13 +2,19 @@
 #include "llvm.h"
 
 void llvm_init(llvm_generator_t *gen) {
+    array_init(llvm_type_declaration_t)(&gen->type_declarations);
     array_init(llvm_global_t)(&gen->globals);
     array_init(llvm_function_t)(&gen->functions);
 }
 
 void llvm_free(llvm_generator_t *gen) {
+    array_free(llvm_type_declaration_t)(&gen->type_declarations);
     array_free(llvm_global_t)(&gen->globals);
     array_free(llvm_function_t)(&gen->functions);
+}
+
+void llvm_add_type_declaration(llvm_generator_t *gen, llvm_type_declaration_t type_declaration) {
+    array_push(llvm_type_declaration_t)(&gen->type_declarations, type_declaration);
 }
 
 void llvm_add_global(llvm_generator_t *gen, llvm_global_t global) {
@@ -21,6 +27,14 @@ void llvm_add_function(llvm_generator_t *gen, llvm_function_t function) {
 
 str llvm_generate(llvm_generator_t *gen) {
     str out = STR("");
+    array_foreach(llvm_type_declaration_t, gen->type_declarations, {
+        llvm_type_declaration_t type_declaration = it;
+        str_append_cstr(&out, "%");
+        str_append(&out, type_declaration.name);
+        str_append_cstr(&out, " = type ");
+        str_append(&out, llvm_generate_type(gen, type_declaration.type));
+        str_append_cstr(&out, "\n");
+    });
     array_foreach(llvm_global_t, gen->globals, {
         llvm_global_t global = it;
         str_append_cstr(&out, "@");
@@ -47,9 +61,13 @@ str llvm_generate(llvm_generator_t *gen) {
             str_append_cstr(&out, ") ");
         }
         if (global.is_constant) str_append_cstr(&out, "constant ");
-        else str_append_cstr(&out, "global ");
-        str_append(&out, llvm_generate_type(gen, global.type));
-        str_append_cstr(&out, " ");
+        else if (global.is_global) str_append_cstr(&out, "global ");
+        if (global.type) {
+            str_append(&out, llvm_generate_type(gen, *global.type));
+            str_append_cstr(&out, " ");
+        } else {
+            str_append_cstr(&out, "void ");
+        }
         str_append(&out, llvm_generate_value(gen, global.value));
         if (global.alignment) {
             str_append_cstr(&out, ", align ");
@@ -179,36 +197,51 @@ str llvm_generate_type(llvm_generator_t *gen, llvm_type_t type) {
             str_append(&out, llvm_generate_type(gen, *type.vector.inner));
             str_append_cstr(&out, ">");
         } break;
+        case LLVM_TYPE_STRUCTURE_: {
+            if (type.structure.is_packed) str_append_cstr(&out, "<");
+            str_append_cstr(&out, "{");
+            for (size_t i = 0; i < type.structure.members.size; i++) {
+                llvm_type_ptr_t member = type.structure.members.data[i];
+                str_append(&out, llvm_generate_type(gen, *member));
+                if (i < type.structure.members.size - 1)
+                    str_append_cstr(&out, ", ");
+            }
+            str_append_cstr(&out, "}");
+            if (type.structure.is_packed) str_append_cstr(&out, ">");
+        } break;
     }
     return out;
 }
 
 str llvm_generate_value(llvm_generator_t *gen, llvm_value_t value) {
-    UNUSED(gen);
     str out = STR("");
     switch (value.type) {
-        case LLVM_VALUE_STRING: {
+        case LLVM_VALUE_STRING_: {
             str_append_cstr(&out, "\"");
             str_append(&out, value.string_);
             str_append_cstr(&out, "\"");
         } break;
-        case LLVM_VALUE_CSTRING: {
+        case LLVM_VALUE_CSTRING_: {
             str_append_cstr(&out, "c\"");
             str_append(&out, value.cstring_);
             str_append_cstr(&out, "\\00\"");
         } break;
-        case LLVM_VALUE_INT: {
+        case LLVM_VALUE_INT_: {
             str_append_int(&out, value.int_);
         } break;
-        case LLVM_VALUE_FLOAT: {
+        case LLVM_VALUE_FLOAT_: {
             str_append_float(&out, value.float_);
         } break;
-        case LLVM_VALUE_DOUBLE: {
+        case LLVM_VALUE_DOUBLE_: {
             str_append_double(&out, value.double_);
         } break;
-        case LLVM_VALUE_LOCAL: {
+        case LLVM_VALUE_LOCAL_: {
             str_append_cstr(&out, "%");
             str_append_int(&out, value.local.idx);
+        } break;
+        case LLVM_VALUE_TYPE_: {
+            str_append_cstr(&out, "type ");
+            str_append(&out, llvm_generate_type(gen, value.type_));
         } break;
     }
     return out;
