@@ -1,4 +1,4 @@
-#include <llvm.h>
+#include "llvm.h"
 #include <windows.h>
 
 int main(void) {
@@ -8,7 +8,7 @@ int main(void) {
     array(llvm_attribute_t) attrs = array_new(llvm_attribute_t)();
     array_push(llvm_attribute_t)(&attrs, LLVM_ATTR_INTERNAL);
     array_push(llvm_attribute_t)(&attrs, LLVM_ATTR_CONSTANT);
-    llvm_add_global(&gen, LLVM_GLOBAL("str_0", attrs, LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_CSTRING("Hello world!")));
+    llvm_add_global(&gen, LLVM_GLOBAL("msg", attrs, LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_CSTRING("Hello world!")));
     
     array(llvm_type_t) print_args = array_new(llvm_type_t)();
     array_push(llvm_type_t)(&print_args, LLVM_TYPE_STRING());
@@ -20,7 +20,7 @@ int main(void) {
 
     array_push(llvm_basic_block_instruction_t)(&main_instructions,
         LLVM_BASIC_BLOCK_INSTRUCTION_LOCAL(LLVM_LOCAL(0,
-            LLVM_VALUE_GETELEMENTPTR("str_0", LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_INT(0), LLVM_VALUE_INT(0)))));
+            LLVM_VALUE_GETELEMENTPTR("msg", LLVM_TYPE_ARRAY(LLVM_TYPE_CHAR(), 13), LLVM_VALUE_INT(0), LLVM_VALUE_INT(0)))));
     array(llvm_function_arg_t) args = array_new(llvm_function_arg_t)();
     array_push(llvm_function_arg_t)(&args, (llvm_function_arg_t){
         LLVM_TYPE_STRING(),
