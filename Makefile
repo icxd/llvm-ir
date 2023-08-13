@@ -1,5 +1,5 @@
 CC := clang
-CFLAGS := -std=c2x
+CFLAGS := -std=c2x -g -Wall -Werror -Wextra
 
 LIBS := $(wildcard lib/*.c)
 SRCS := $(wildcard src/*.c)
