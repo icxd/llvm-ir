@@ -88,6 +88,7 @@ typedef unsigned int uint;
 #define array(type) array_##type
 #define array_init(type) array_##type##_init
 #define array_new(type) array_##type##_new
+#define array_new_with_values(type) array_##type##_new_with_values
 #define array_push(type) array_##type##_push
 #define array_pop(type) array_##type##_pop
 #define array_free(type) array_##type##_free
@@ -99,6 +100,7 @@ typedef unsigned int uint;
     } array(type); \
     void array_init(type)(array(type) *array); \
     array(type) array_new(type)(); \
+    array(type) array_new_with_values(type)(size_t count, ...); \
     void array_push(type)(array(type) *array, type value); \
     type array_pop(type)(array(type) *array); \
     void array_free(type)(array(type) *array);
@@ -112,6 +114,16 @@ typedef unsigned int uint;
     array(type) array_new(type)() { \
         array(type) arr; \
         array_init(type)(&arr); \
+        return arr; \
+    } \
+    array(type) array_new_with_values(type)(size_t count, ...) { \
+        array(type) arr = array_new(type)(); \
+        va_list args; \
+        va_start(args, count); \
+        for (size_t i = 0; i < count; i++) { \
+            array_push(type)(&arr, va_arg(args, type)); \
+        } \
+        va_end(args); \
         return arr; \
     } \
     void array_push(type)(array(type) *array, type value) { \
