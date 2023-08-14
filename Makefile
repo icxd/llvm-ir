@@ -15,6 +15,7 @@ all: $(OBJS)
 
 clean:
 	rm -f $(OBJS) bin/$(TARGET)
+	git clean -Xf
 
 build_dll:
 	$(CC) $(CFLAGS) -shared -o bin/libllvm.dll tests/llvm.c -I. $(LIBS)
