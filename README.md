@@ -49,7 +49,7 @@ $ make
 $ ./test
 ```
 
-*This test currently only works on Windows*
+*This test should support both Windows and Linux, but it hasn't been tested on Linux.*
 
 ## License
 
