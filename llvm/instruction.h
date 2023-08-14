@@ -1,5 +1,5 @@
-#ifndef LLVM_INSTRUCTION_H
-#define LLVM_INSTRUCTION_H
+#ifndef __LLVM_INSTRUCTION_H
+#define __LLVM_INSTRUCTION_H
 
 #include <lib/base.h>
 #include "type.h"
@@ -37,4 +37,4 @@ array_proto(llvm_instruction_t); array_impl(llvm_instruction_t);
 #define LLVM_INSTR_GETELEMENTPTR(n, t, v, i) ((llvm_instruction_t){LLVM_INSTR_GETELEMENTPTR, .getelementptr={STR(n), t, &(v), &(i)}})
 #define LLVM_INSTR_GETELEMENTPTR_INBOUNDS(n, t, v, i) ((llvm_instruction_t){LLVM_INSTR_GETELEMENTPTR_INBOUNDS, .getelementptr={STR(n), t, &(v), &(i)}})
 
-#endif // LLVM_INSTRUCTION_H
+#endif // __LLVM_INSTRUCTION_H

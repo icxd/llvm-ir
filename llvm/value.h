@@ -1,5 +1,5 @@
-#ifndef LLVM_VALUE_H
-#define LLVM_VALUE_H
+#ifndef __LLVM_VALUE_H
+#define __LLVM_VALUE_H
 
 #include <lib/base.h>
 #include "type.h"
@@ -36,4 +36,4 @@ array_proto(llvm_value_t); array_impl(llvm_value_t);
 #define LLVM_VALUE_LOCAL(i) ((llvm_value_t){LLVM_VALUE_LOCAL_, .local={i}})
 #define LLVM_VALUE_TYPE(t) ((llvm_value_t){LLVM_VALUE_TYPE_, .type_=t})
 
-#endif // LLVM_VALUE_H
+#endif // __LLVM_VALUE_H

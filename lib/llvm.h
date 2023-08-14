@@ -1,5 +1,5 @@
-#ifndef LLVM_H
-#define LLVM_H
+#ifndef __LLVM_H
+#define __LLVM_H
 
 #include <lib/base.h>
 #include <llvm/common.h>
@@ -123,4 +123,4 @@ str llvm_generate_instruction(llvm_generator_t *gen, llvm_instruction_t instruct
 str llvm_generate_linkage_type(llvm_linkage_type_t linkage);
 str llvm_generate_call_convention(llvm_call_convention_t call_convention);
 
-#endif // LLVM_H
+#endif // __LLVM_H

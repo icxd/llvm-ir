@@ -1,5 +1,5 @@
-#ifndef LLVM_COMMON_H
-#define LLVM_COMMON_H
+#ifndef __LLVM_COMMON_H
+#define __LLVM_COMMON_H
 
 #include <lib/base.h>
 #include "value.h"
@@ -42,4 +42,4 @@ typedef struct llvm_function_arg_t {
 } llvm_function_arg_t;
 array_proto(llvm_function_arg_t); array_impl(llvm_function_arg_t);
 
-#endif // LLVM_COMMON_H
+#endif // __LLVM_COMMON_H

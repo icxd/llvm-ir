@@ -1,5 +1,5 @@
-#ifndef LLVM_TYPE_H
-#define LLVM_TYPE_H
+#ifndef __LLVM_TYPE_H
+#define __LLVM_TYPE_H
 
 #include <lib/base.h>
 
@@ -48,4 +48,4 @@ array_proto(llvm_type_t); array_impl(llvm_type_t);
 #define LLVM_TYPE_CHAR() LLVM_TYPE_INT(8)
 #define LLVM_TYPE_STRING() LLVM_TYPE_POINTER(LLVM_TYPE_CHAR())
 
-#endif // LLVM_TYPE_H
+#endif // __LLVM_TYPE_H
