@@ -1,5 +1,50 @@
 #include <lib/base.h>
 
+void arena_init(arena_t *a) {
+    a->ptr = NULL;
+    a->size = 0;
+    a->capacity = 0;
+}
+
+void arena_free(arena_t *a) {
+    free(a->ptr);
+    a->ptr = NULL;
+    a->size = 0;
+    a->capacity = 0;
+}
+
+void *arena_alloc(arena_t *a, size_t size) {
+    if (a->size + size > a->capacity) {
+        size_t new_capacity = a->capacity * 2;
+        if (new_capacity < 16) {
+            new_capacity = 16;
+        }
+        if (new_capacity < a->size + size) {
+            new_capacity = a->size + size;
+        }
+
+        char *new_ptr = (char *)malloc(new_capacity);
+        if (!new_ptr) {
+            fprintf(stderr, "failed to allocate memory for new_ptr");
+            return NULL;
+        }
+
+        memcpy(new_ptr, a->ptr, a->size);
+        free(a->ptr);
+        a->ptr = new_ptr;
+        a->capacity = new_capacity;
+    }
+
+    void *result = a->ptr + a->size;
+    a->size += size;
+    return result;
+}
+
+void arena_clear(arena_t *a) {
+    a->size = 0;
+}
+
+
 char str_at(str *s, size_t idx) {
     assert(idx < s->count);
     return s->chars[idx];

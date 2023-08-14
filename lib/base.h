@@ -177,6 +177,17 @@ typedef struct string_view {
 #define STR_ARG "%.*s"
 #define STR_FMT(str) (int)str.count, str.chars
 
+typedef struct arena_t {
+    char *ptr;
+    size_t size;
+    size_t capacity;
+} arena_t;
+
+void arena_init(arena_t *a);
+void arena_free(arena_t *a);
+void *arena_alloc(arena_t *a, size_t size);
+void arena_clear(arena_t *a);
+
 char str_at(str *s, size_t idx);
 bool str_eq(str s1, str s2);
 void str_append(str *s1, str s2);
