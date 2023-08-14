@@ -20,6 +20,7 @@ A small C library for generating LLVM IR.
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Testing](#testing)
 - [License](#license)
 
 ## Introduction
@@ -38,6 +39,17 @@ The library is very simple to use. Just include the `llvm.h` header file in your
 ```c
 #include "llvm.h"
 ```
+
+## Testing
+
+To run the test program, run the following commands:
+
+```console
+$ make
+$ ./test
+```
+
+*This test currently only works on Windows*
 
 ## License
 

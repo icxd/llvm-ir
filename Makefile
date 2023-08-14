@@ -2,10 +2,10 @@ CC := clang
 CFLAGS := -std=c2x -g -Wall -Werror -Wextra
 
 LIBS := $(wildcard lib/*.c)
-SRCS := $(wildcard src/*.c)
+SRCS := $(wildcard tests/*.c)
 OBJS := $(SRCS:.c=.o)
 
-TARGET := main
+TARGET := test
 
 all: $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LIBS) -I.
@@ -17,7 +17,7 @@ clean:
 	rm -f $(OBJS) bin/$(TARGET)
 
 build_dll:
-	$(CC) $(CFLAGS) -shared -o bin/libllvm.dll src/llvm.c -I. $(LIBS)
+	$(CC) $(CFLAGS) -shared -o bin/libllvm.dll tests/llvm.c -I. $(LIBS)
 
 .PHONY: all clean
 .DEFAULT_GOAL := all

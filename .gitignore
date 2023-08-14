@@ -1,8 +1,8 @@
 out.ll
 out.exe
 out.s
-src/*.o
-main
+tests/*.o
+test
 *.ilk
 *.pdb
 .vscode/settings.json
