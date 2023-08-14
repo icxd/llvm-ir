@@ -1,5 +1,10 @@
-#include <lib/llvm.h>
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+#elif defined(__linux__)
+#include <unistd.h>
+#endif // defined(_WIN32) || defined(_WIN64)
+
+#include <lib/llvm.h>
 
 int main(void) {
     llvm_generator_t gen;
@@ -99,9 +104,15 @@ int main(void) {
     array_free(llvm_function_arg_t)(&args);
     llvm_free(&gen);
 
+#if defined(_WIN32) || defined(_WIN64)
     system("llc out.ll -o out.s");
     system("gcc out.s -o out.exe");
     system("out.exe");
+#elif defined(__linux__)
+    system("llc out.ll -o out.s");
+    system("gcc out.s -o out");
+    system("./out");
+#endif // defined(_WIN32) || defined(_WIN64)
     
     return 0;
 }
